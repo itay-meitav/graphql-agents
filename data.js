@@ -21,32 +21,43 @@ async function getCities() {
     ]);
   } catch (error) {
     console.log(error);
+    throw error;
   }
 }
 
 async function getAgents() {
-  return csvtojson()
-    .fromFile("./agents.csv")
-    .then((jsonObj) => {
-      return jsonObj.map((x) => [
-        x["שם פרטי"] || "",
-        x["שם משפחה"] || "",
-        x["ישוב"] || "",
-        x["סטטוס"] || "",
-        x["מספר רישיון"] || "",
-      ]);
-    });
+  try {
+    return csvtojson()
+      .fromFile("./agents.csv")
+      .then((jsonObj) => {
+        return jsonObj.map((x) => [
+          x["שם פרטי"] || "",
+          x["שם משפחה"] || "",
+          x["ישוב"] || "",
+          x["סטטוס"] || "",
+          x["מספר רישיון"] || "",
+        ]);
+      });
+  } catch (error) {
+    console.log(error);
+    throw error;
+  }
 }
 
 async function getLicesens() {
-  return csvtojson()
-    .fromFile("./agents.csv")
-    .then((jsonObj) => {
-      return jsonObj.map((x) => [
-        x["מספר רישיון"] || "",
-        parseDate(x["תאריך קבלת רישיון"]) || "",
-      ]);
-    });
+  try {
+    return csvtojson()
+      .fromFile("./agents.csv")
+      .then((jsonObj) => {
+        return jsonObj.map((x) => [
+          x["מספר רישיון"] || "",
+          parseDate(x["תאריך קבלת רישיון"]) || "",
+        ]);
+      });
+  } catch (error) {
+    console.log(error);
+    throw error;
+  }
 }
 
 function parseDate(dateString) {
