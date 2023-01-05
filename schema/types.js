@@ -6,19 +6,19 @@ const {
 } = require("graphql");
 const GraphQLDate = require("graphql-date");
 
-const personType = new GraphQLObjectType({
-  name: "Person",
-  description: "person",
+const agentType = new GraphQLObjectType({
+  name: "Agent",
+  description: "An agent",
   fields: () => ({
     id: {
       type: GraphQLNonNull(GraphQLInt),
       description: "a person's id",
     },
-    firstName: {
+    first_name: {
       type: GraphQLString,
       description: "a person's first name",
     },
-    lastName: {
+    last_name: {
       type: GraphQLString,
       description: "a person's last name",
     },
@@ -30,15 +30,15 @@ const personType = new GraphQLObjectType({
       type: GraphQLString,
       description: "a person's status",
     },
-    licenseNumber: {
+    license_number: {
       type: GraphQLInt,
       description: "a person's  license number",
     },
-    licenseDate: {
+    license_date: {
       type: GraphQLDate,
       description: "a person's license date",
     },
   }),
 });
 
-module.exports = { personType };
+module.exports = { agentType };

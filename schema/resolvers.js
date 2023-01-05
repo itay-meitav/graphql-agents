@@ -1,8 +1,8 @@
 const { promisePool } = require("../db");
 
-async function resolvePersons() {
+async function resolveAgents() {
   try {
-    const sql = "select * from agents";
+    const sql = "SELECT * FROM agents";
     const [rows, fields] = await promisePool.query(sql);
     return rows;
   } catch (error) {
@@ -10,4 +10,4 @@ async function resolvePersons() {
   }
 }
 
-module.exports = { resolvePersons };
+module.exports = { resolveAgents };
