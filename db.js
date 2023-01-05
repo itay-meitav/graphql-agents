@@ -1,59 +1,46 @@
 const csvtojson = require("csvtojson");
-const sqlite3 = require("sqlite3").verbose();
-const fs = require("fs");
+const mysql = require("mysql2");
 
-const filePath = __dirname + "/agents.db";
-
-if (!fs.existsSync(filePath)) {
-  fs.writeFileSync(filePath, "");
-}
-
-const db = new sqlite3.Database(__dirname + "/agents.db", (err) => {
-  if (err) {
-    console.log(err);
-  }
+const pool = mysql.createPool({
+  host: "localhost",
+  user: "root",
+  database: "agents",
+  waitForConnections: true,
+  connectionLimit: 10,
+  queueLimit: 0,
 });
 
-function insertInitialData() {
-  db.serialize(() => {
-    db.run("DROP TABLE IF EXISTS agents");
-    db.run(
-      "CREATE TABLE agents (id INTEGER PRIMARY KEY, first_name TEXT, last_name TEXT, city TEXT, status TEXT, license_number INTEGER, license_date DATE)"
+const promisePool = pool.promise();
+
+async function insertInitialData() {
+  try {
+    await promisePool.query("DROP TABLE IF EXISTS agents;");
+    await promisePool.query(
+      "CREATE TABLE agents(id SERIAL PRIMARY KEY, first_name TEXT, last_name TEXT, city TEXT, status TEXT, license_number INTEGER, license_date DATE);"
     );
-  });
+  } catch (error) {
+    console.log(error.message);
+  }
   csvtojson()
     .fromFile("./agents.csv")
-    .then((jsonObj) => {
-      const fixed = jsonObj.map((x) => {
-        return {
-          firstName: x["שם פרטי"],
-          lastName: x["שם משפחה"],
-          city: x["ישוב"],
-          status: x["סטטוס"],
-          licenseNumber: x["מספר רישיון"],
-          licenseDate: parseDate(x["תאריך קבלת רישיון"]),
-        };
+    .then(async (jsonObj) => {
+      const values = jsonObj.map((x) => [
+        x["שם פרטי"],
+        x["שם משפחה"],
+        x["ישוב"],
+        x["סטטוס"],
+        x["מספר רישיון"],
+        parseDate(x["תאריך קבלת רישיון"]),
+      ]);
+      values.forEach(async (x) => {
+        try {
+          const sql =
+            "INSERT INTO agents(first_name, last_name, city, status, license_number, license_date) VALUES (?, ?, ?, ?, ?, ?)";
+          await promisePool.query(sql, x);
+        } catch (error) {
+          console.log(error);
+        }
       });
-      try {
-        db.serialize(() => {
-          const stmt = db.prepare(
-            "INSERT INTO agents (first_name, last_name, city, status, license_number, license_date) VALUES (?, ?, ?, ?, ?, ?)"
-          );
-          fixed.forEach((x) =>
-            stmt.run(
-              x.firstName,
-              x.lastName,
-              x.city,
-              x.status,
-              x.licenseNumber,
-              x.licenseDate
-            )
-          );
-          stmt.finalize();
-        });
-      } catch (error) {
-        console.log(error);
-      }
     });
 }
 
@@ -65,4 +52,4 @@ function parseDate(dateString) {
   return new Date(year, month, day);
 }
 
-module.exports = { db, insertInitialData };
+module.exports = { insertInitialData, promisePool };
