@@ -20,6 +20,16 @@ async function resolveCities() {
   }
 }
 
+async function resolveCitiesName(cityName) {
+  try {
+    const sql = "SELECT * FROM cities WHERE city_name = ?";
+    const [rows, fields] = await promisePool.query(sql, [cityName]);
+    return rows[0];
+  } catch (error) {
+    console.log(error);
+  }
+}
+
 async function resolveLicenses() {
   try {
     const sql = "SELECT * FROM licenses";
@@ -30,4 +40,9 @@ async function resolveLicenses() {
   }
 }
 
-module.exports = { resolveAgents, resolveCities, resolveLicenses };
+module.exports = {
+  resolveAgents,
+  resolveCities,
+  resolveLicenses,
+  resolveCitiesName,
+};

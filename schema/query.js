@@ -10,7 +10,7 @@ const RootQueryType = new GraphQLObjectType({
   name: "Query",
   description: "Root query",
   fields: () => ({
-    persons: {
+    agents: {
       type: new GraphQLList(agentType),
       description: "list of all agents",
       resolve: resolveAgents,

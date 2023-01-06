@@ -14,21 +14,23 @@ const promisePool = pool.promise();
 
 async function initialDB() {
   await createInitialTables();
-  const cities = await getCities();
-  const agents = await getAgents();
-  const licenses = await getLicesens();
+  const [cities, agents, licenses] = await Promise.all([
+    getCities(),
+    getAgents(),
+    getLicesens(),
+  ]);
   await insertInitialData(agents, cities, licenses);
 }
-// initialDB();
+initialDB();
 
 async function createInitialTables() {
   try {
     await promisePool.query("DROP TABLE IF EXISTS agents, cities, licenses");
     await promisePool.query(
-      "CREATE TABLE cities(city_name VARCHAR(200) PRIMARY KEY, city_code INTEGER , sieve TEXT, office TEXT, has_council BOOLEAN, english_name TEXT)"
+      "CREATE TABLE cities(city_name VARCHAR(200) PRIMARY KEY, city_code INTEGER , sieve TEXT, residents INT, english_name TEXT)"
     );
     await promisePool.query(
-      "CREATE TABLE licenses(license_number INTEGER PRIMARY KEY, license_date DATE)"
+      "CREATE TABLE licenses(license_number INTEGER PRIMARY KEY, license_date DATE, rank TEXT)"
     );
     await promisePool.query(
       "CREATE TABLE agents(id SERIAL PRIMARY KEY, first_name TEXT, last_name TEXT, city VARCHAR(200), FOREIGN KEY(city) REFERENCES cities(city_name) ON DELETE CASCADE, status TEXT, license_number INTEGER, FOREIGN KEY(license_number) REFERENCES licenses(license_number) ON DELETE CASCADE)"
@@ -45,7 +47,7 @@ async function insertInitialData(agents = [], cities = [], licenses = []) {
     await Promise.all(
       cities.map((x) => {
         const sql =
-          "INSERT INTO cities(city_name, city_code, sieve, office, has_council, english_name) VALUES (?, ?, ?, ?, ?, ?)";
+          "INSERT INTO cities(city_name, city_code, sieve, residents, english_name) VALUES (?, ?, ?, ?, ?)";
         return promisePool.query(sql, x);
       })
     ).then(() => console.log("done inserting cities"));
@@ -53,7 +55,7 @@ async function insertInitialData(agents = [], cities = [], licenses = []) {
     await Promise.all(
       licenses.map((x) => {
         const sql =
-          "INSERT INTO licenses(license_number, license_date) VALUES (?, ?)";
+          "INSERT INTO licenses(license_number, license_date, rank) VALUES (?, ?, ?)";
         return promisePool.query(sql, x);
       })
     ).then(() => console.log("done inserting licenses"));

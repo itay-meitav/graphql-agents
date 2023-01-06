@@ -5,6 +5,7 @@ const {
   GraphQLNonNull,
 } = require("graphql");
 const GraphQLDate = require("graphql-date");
+const { resolveCitiesName } = require("./resolvers");
 
 const agentType = new GraphQLObjectType({
   name: "Agent",
@@ -23,8 +24,9 @@ const agentType = new GraphQLObjectType({
       description: "an agent's last name",
     },
     city: {
-      type: GraphQLString,
+      type: cityType,
       description: "an agent's city",
+      resolve: (agent) => resolveCitiesName(agent.city),
     },
     status: {
       type: GraphQLString,

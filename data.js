@@ -3,24 +3,46 @@ const axios = require("axios");
 
 async function getCities() {
   try {
-    const checkTotal = await axios.get(
-      "https://data.gov.il/api/3/action/datastore_search?resource_id=d4901968-dad3-4845-a9b0-a57d027f11ab"
-    );
-    const total = checkTotal.data.result.total;
-    const getCities = await axios.get(
-      `https://data.gov.il/api/3/action/datastore_search?resource_id=d4901968-dad3-4845-a9b0-a57d027f11ab&limit=${total}`
-    );
-    const cities = getCities.data.result.records;
-    return cities.map((x) => [
-      x["שם_ישוב"].trim() || "",
-      x["סמל_ישוב"] || "",
-      x["שם_נפה"].trim() || "",
-      x["לשכה"].trim() || "",
-      x["שם_מועצה"] ? true : false,
-      x["שם_ישוב_לועזי"].trim() || "",
+    const [cities, citiesResidents] = await Promise.all([
+      axios
+        .get(
+          "https://data.gov.il/api/3/action/datastore_search?resource_id=d4901968-dad3-4845-a9b0-a57d027f11ab"
+        )
+        .then((res) => {
+          return axios.get(
+            `https://data.gov.il/api/3/action/datastore_search?resource_id=d4901968-dad3-4845-a9b0-a57d027f11ab&limit=${res.data.result.total}`
+          );
+        })
+        .then((res) => {
+          return res.data.result.records;
+        }),
+      axios
+        .get(
+          "https://data.gov.il/api/3/action/datastore_search?resource_id=64edd0ee-3d5d-43ce-8562-c336c24dbc1f"
+        )
+        .then((res) => {
+          return axios.get(
+            `https://data.gov.il/api/3/action/datastore_search?resource_id=64edd0ee-3d5d-43ce-8562-c336c24dbc1f&limit=${res.data.result.total}`
+          );
+        })
+        .then((res) => {
+          return res.data.result.records;
+        }),
     ]);
+    return cities.map((item1) => {
+      const item2 = citiesResidents.find(
+        (x) => Number(x.סמל_ישוב.trim()) == item1.סמל_ישוב
+      );
+      return [
+        item1.שם_ישוב.trim() || "",
+        item2 ? Number(item2.סמל_ישוב.trim()) : item1.סמל_ישוב,
+        item1.שם_נפה.trim() || "",
+        item2 ? Number(item2.סהכ.trim()) : null,
+        item1.שם_ישוב_לועזי.trim() || "",
+      ];
+    });
   } catch (error) {
-    console.log(error);
+    console.log("There was a problem trying to extract the cities data");
     throw error;
   }
 }
@@ -31,31 +53,47 @@ async function getAgents() {
       .fromFile("./agents.csv")
       .then((jsonObj) => {
         return jsonObj.map((x) => [
-          x["שם פרטי"] || "",
-          x["שם משפחה"] || "",
-          x["ישוב"] || "",
-          x["סטטוס"] || "",
-          x["מספר רישיון"] || "",
+          x["שם פרטי"].trim() || "",
+          x["שם משפחה"].trim() || "",
+          x["ישוב"].trim() || "",
+          x["סטטוס"].trim() || "",
+          Number(x["מספר רישיון"].trim()) || "",
         ]);
       });
   } catch (error) {
-    console.log(error);
+    console.log("There was a problem trying to extract the agents data");
     throw error;
   }
 }
 
 async function getLicesens() {
   try {
-    return csvtojson()
-      .fromFile("./agents.csv")
-      .then((jsonObj) => {
-        return jsonObj.map((x) => [
-          x["מספר רישיון"] || "",
-          parseDate(x["תאריך קבלת רישיון"]) || "",
-        ]);
+    const licesensTypes = await axios
+      .get(
+        "https://data.gov.il/api/3/action/datastore_search?resource_id=c680ada6-9af1-47ab-9acf-d6585df6ad47"
+      )
+      .then((res) => {
+        return axios.get(
+          `https://data.gov.il/api/3/action/datastore_search?resource_id=c680ada6-9af1-47ab-9acf-d6585df6ad47&limit=${res.data.result.total}`
+        );
+      })
+      .then((res) => {
+        return res.data.result.records
+          .filter((x) => x.Type == "רישיון נהיגה")
+          .map((x) => x.Rank);
       });
+    const licenses = await csvtojson().fromFile("./agents.csv");
+    return licenses.map((item1) => {
+      const randomIndex = Math.floor(Math.random() * licesensTypes.length);
+      const item2 = licesensTypes.find((x, i) => i === randomIndex);
+      return [
+        Number(item1["מספר רישיון"].trim()) || "",
+        parseDate(item1["תאריך קבלת רישיון"]) || "",
+        item2,
+      ];
+    });
   } catch (error) {
-    console.log(error);
+    console.log("There was a problem trying to extract the licenses data");
     throw error;
   }
 }
