@@ -1,48 +1,30 @@
 const { promisePool } = require("../db");
 
-async function resolveAgents() {
+async function resolveAll(tableName) {
   try {
-    const sql = "SELECT * FROM agents";
-    const [rows, fields] = await promisePool.query(sql);
+    const sql = `SELECT * FROM ??`;
+    const [rows, fields] = await promisePool.query(sql, [tableName]);
     return rows;
   } catch (error) {
-    console.log(error);
+    console.log(error.sqlMessage);
   }
 }
 
-async function resolveCities() {
+async function resolveWhere(tableName, column, value) {
   try {
-    const sql = "SELECT * FROM cities";
-    const [rows, fields] = await promisePool.query(sql);
-    return rows;
-  } catch (error) {
-    console.log(error);
-  }
-}
-
-async function resolveCitiesName(cityName) {
-  try {
-    const sql = "SELECT * FROM cities WHERE city_name = ?";
-    const [rows, fields] = await promisePool.query(sql, [cityName]);
+    const sql = "SELECT * FROM ?? WHERE ?? = ?";
+    const [rows, fields] = await promisePool.query(sql, [
+      tableName,
+      column,
+      value,
+    ]);
     return rows[0];
   } catch (error) {
-    console.log(error);
-  }
-}
-
-async function resolveLicenses() {
-  try {
-    const sql = "SELECT * FROM licenses";
-    const [rows, fields] = await promisePool.query(sql);
-    return rows;
-  } catch (error) {
-    console.log(error);
+    console.log(error.sqlMessage);
   }
 }
 
 module.exports = {
-  resolveAgents,
-  resolveCities,
-  resolveLicenses,
-  resolveCitiesName,
+  resolveAll,
+  resolveWhere,
 };

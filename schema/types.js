@@ -5,7 +5,7 @@ const {
   GraphQLNonNull,
 } = require("graphql");
 const GraphQLDate = require("graphql-date");
-const { resolveCitiesName } = require("./resolvers");
+const { resolveWhere } = require("./resolvers");
 
 const agentType = new GraphQLObjectType({
   name: "Agent",
@@ -26,15 +26,22 @@ const agentType = new GraphQLObjectType({
     city: {
       type: cityType,
       description: "an agent's city",
-      resolve: (agent) => resolveCitiesName(agent.city),
+      resolve: (agent) => resolveWhere("cities", "city", agent.city),
     },
     status: {
       type: GraphQLString,
       description: "an agent's status",
     },
     license_number: {
-      type: GraphQLInt,
+      type: licenseType,
       description: "an agent's license number",
+      resolve: (agent) =>
+        resolveWhere("licenses", "license_number", agent.license_number),
+    },
+    car_number: {
+      type: carType,
+      description: "an agent's car number",
+      resolve: (agent) => resolveWhere("cars", "car_number", agent.car_number),
     },
   }),
 });
@@ -55,13 +62,9 @@ const cityType = new GraphQLObjectType({
       type: GraphQLString,
       description: "a city's sieve",
     },
-    office: {
-      type: GraphQLString,
-      description: "a city's office location",
-    },
-    has_council: {
-      type: GraphQLString,
-      description: "a city's council status",
+    residents: {
+      type: GraphQLInt,
+      description: "a city's residents number",
     },
     english_name: {
       type: GraphQLString,
@@ -80,9 +83,44 @@ const licenseType = new GraphQLObjectType({
     },
     license_date: {
       type: GraphQLDate,
-      description: "an agent's license date",
+      description: "a license's date",
+    },
+    rank: {
+      type: GraphQLString,
+      description: "a license's rank",
     },
   }),
 });
 
-module.exports = { agentType, cityType, licenseType };
+const carType = new GraphQLObjectType({
+  name: "Car",
+  description: "A car",
+  fields: () => ({
+    car_number: {
+      type: GraphQLNonNull(GraphQLInt),
+      description: "a car's number",
+    },
+    production_year: {
+      type: GraphQLInt,
+      description: "a car's production year",
+    },
+    manufacturer: {
+      type: GraphQLString,
+      description: "a car's manufacturer",
+    },
+    manufacturing_country: {
+      type: GraphQLString,
+      description: "a car's manufacturing country",
+    },
+    fuel_type: {
+      type: GraphQLString,
+      description: "a car's fuel type",
+    },
+    rank: {
+      type: GraphQLString,
+      description: "a car's license rank",
+    },
+  }),
+});
+
+module.exports = { agentType, cityType, licenseType, carType };

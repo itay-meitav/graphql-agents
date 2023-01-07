@@ -1,10 +1,6 @@
 const { GraphQLObjectType, GraphQLList } = require("graphql");
-const {
-  resolveAgents,
-  resolveCities,
-  resolveLicenses,
-} = require("./resolvers");
-const { agentType, cityType, licenseType } = require("./types");
+const { resolveAll } = require("./resolvers");
+const { agentType, cityType, licenseType, carType } = require("./types");
 
 const RootQueryType = new GraphQLObjectType({
   name: "Query",
@@ -13,17 +9,22 @@ const RootQueryType = new GraphQLObjectType({
     agents: {
       type: new GraphQLList(agentType),
       description: "list of all agents",
-      resolve: resolveAgents,
+      resolve: () => resolveAll("agents"),
     },
     cities: {
       type: new GraphQLList(cityType),
       description: "list of all cities",
-      resolve: resolveCities,
+      resolve: () => resolveAll("cities"),
     },
     licenses: {
       type: new GraphQLList(licenseType),
       description: "list of all licenses",
-      resolve: resolveLicenses,
+      resolve: () => resolveAll("licenses"),
+    },
+    cars: {
+      type: new GraphQLList(carType),
+      description: "list of all cars",
+      resolve: () => resolveAll("cars"),
     },
   }),
 });

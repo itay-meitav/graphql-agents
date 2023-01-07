@@ -46,12 +46,12 @@ async function getCities() {
     throw error;
   }
 }
-// getAgents();
+
 async function getAgents() {
   try {
     const cars = await axios
       .get(
-        `https://data.gov.il/api/3/action/datastore_search?resource_id=cd3acc5c-03c3-4c89-9c54-d40f93c0d790&limit=30000`
+        `https://data.gov.il/api/3/action/datastore_search?resource_id=cd3acc5c-03c3-4c89-9c54-d40f93c0d790&limit=50000`
       )
       .then((res) => {
         return res.data.result.records.map((x) => Number(x.mispar_rechev));
@@ -59,19 +59,22 @@ async function getAgents() {
     return csvtojson()
       .fromFile("./agents.csv")
       .then((jsonObj) => {
-        const randomCarsArr = [];
-        for (let i = 0; i < Math.floor(Math.random() * 5); i++) {
-          const randomIndex = Math.floor(Math.random() * cars.length);
-          randomCarsArr.push(cars[randomIndex]);
-        }
-        return jsonObj.map((x) => [
-          x["שם פרטי"].trim() || "",
-          x["שם משפחה"].trim() || "",
-          x["ישוב"].trim() || "",
-          x["סטטוס"].trim() || "",
-          Number(x["מספר רישיון"].trim()) || "",
-          JSON.stringify(randomCarsArr),
-        ]);
+        const usedIndexes = new Set();
+        return jsonObj.map((x) => {
+          let randomIndex;
+          do {
+            randomIndex = Math.floor(Math.random() * cars.length);
+          } while (usedIndexes.has(randomIndex));
+          usedIndexes.add(randomIndex);
+          return [
+            x["שם פרטי"].trim() || "",
+            x["שם משפחה"].trim() || "",
+            x["ישוב"].trim() || "",
+            x["סטטוס"].trim() || "",
+            Number(x["מספר רישיון"].trim()) || "",
+            Number(cars[randomIndex]),
+          ];
+        });
       });
   } catch (error) {
     console.log("There was a problem trying to extract the agents data");
@@ -116,7 +119,7 @@ async function getCars() {
     const [cars, licesensTypes] = await Promise.all([
       axios
         .get(
-          `https://data.gov.il/api/3/action/datastore_search?resource_id=cd3acc5c-03c3-4c89-9c54-d40f93c0d790&limit=30000`
+          `https://data.gov.il/api/3/action/datastore_search?resource_id=cd3acc5c-03c3-4c89-9c54-d40f93c0d790&limit=50000`
         )
         .then((res) => {
           return res.data.result.records;

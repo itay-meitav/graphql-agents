@@ -22,7 +22,6 @@ async function initialDB() {
   ]);
   await insertInitialData(agents, cities, licenses, cars);
 }
-initialDB();
 
 async function createInitialTables() {
   try {
@@ -37,14 +36,14 @@ async function createInitialTables() {
       "CREATE TABLE licenses(license_number INT PRIMARY KEY, license_date DATE, rank TEXT)"
     );
     await promisePool.query(
-      "CREATE TABLE cars(car_number VARCHAR(200) PRIMARY KEY, production_year INT, manufacturer TEXT,\
+      "CREATE TABLE cars(car_number INT PRIMARY KEY, production_year INT, manufacturer TEXT,\
        manufacturing_country TEXT, fuel_type TEXT, rank TEXT)"
     );
     await promisePool.query(
       "CREATE TABLE agents(id SERIAL PRIMARY KEY, first_name TEXT, last_name TEXT, city VARCHAR(200),\
        FOREIGN KEY(city) REFERENCES cities(city_name) ON UPDATE CASCADE, status TEXT,\
        license_number INT, FOREIGN KEY(license_number) REFERENCES licenses(license_number) ON UPDATE CASCADE,\
-       owned_cars JSON)"
+       car_number INT, FOREIGN KEY(car_number) REFERENCES cars(car_number) ON UPDATE CASCADE)"
     );
     console.log("done creating/recreateing tables");
   } catch (error) {
@@ -88,7 +87,7 @@ async function insertInitialData(
     await Promise.all(
       agents.map((x) => {
         const sql =
-          "INSERT INTO agents(first_name, last_name, city, status, license_number, owned_cars) VALUES (?, ?, ?, ?, ?, ?)";
+          "INSERT INTO agents(first_name, last_name, city, status, license_number, car_number) VALUES (?, ?, ?, ?, ?, ?)";
         return promisePool.query(sql, x);
       })
     ).then(() => console.log("done inserting agents"));
