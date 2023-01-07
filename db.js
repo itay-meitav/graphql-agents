@@ -1,5 +1,5 @@
 const mysql = require("mysql2");
-const { getCities, getAgents, getLicesens } = require("./data");
+const { getCities, getAgents, getLicesens, getCars } = require("./data");
 
 const pool = mysql.createPool({
   host: "localhost",
@@ -14,26 +14,37 @@ const promisePool = pool.promise();
 
 async function initialDB() {
   await createInitialTables();
-  const [cities, agents, licenses] = await Promise.all([
+  const [cities, licenses, cars, agents] = await Promise.all([
     getCities(),
-    getAgents(),
     getLicesens(),
+    getCars(),
+    getAgents(),
   ]);
-  await insertInitialData(agents, cities, licenses);
+  await insertInitialData(agents, cities, licenses, cars);
 }
 initialDB();
 
 async function createInitialTables() {
   try {
-    await promisePool.query("DROP TABLE IF EXISTS agents, cities, licenses");
     await promisePool.query(
-      "CREATE TABLE cities(city_name VARCHAR(200) PRIMARY KEY, city_code INTEGER , sieve TEXT, residents INT, english_name TEXT)"
+      "DROP TABLE IF EXISTS agents, cities, licenses, cars CASCADE"
     );
     await promisePool.query(
-      "CREATE TABLE licenses(license_number INTEGER PRIMARY KEY, license_date DATE, rank TEXT)"
+      "CREATE TABLE cities(city_name VARCHAR(200) PRIMARY KEY, city_code INT, sieve TEXT,\
+       residents INT, english_name TEXT)"
     );
     await promisePool.query(
-      "CREATE TABLE agents(id SERIAL PRIMARY KEY, first_name TEXT, last_name TEXT, city VARCHAR(200), FOREIGN KEY(city) REFERENCES cities(city_name) ON DELETE CASCADE, status TEXT, license_number INTEGER, FOREIGN KEY(license_number) REFERENCES licenses(license_number) ON DELETE CASCADE)"
+      "CREATE TABLE licenses(license_number INT PRIMARY KEY, license_date DATE, rank TEXT)"
+    );
+    await promisePool.query(
+      "CREATE TABLE cars(car_number VARCHAR(200) PRIMARY KEY, production_year INT, manufacturer TEXT,\
+       manufacturing_country TEXT, fuel_type TEXT, rank TEXT)"
+    );
+    await promisePool.query(
+      "CREATE TABLE agents(id SERIAL PRIMARY KEY, first_name TEXT, last_name TEXT, city VARCHAR(200),\
+       FOREIGN KEY(city) REFERENCES cities(city_name) ON UPDATE CASCADE, status TEXT,\
+       license_number INT, FOREIGN KEY(license_number) REFERENCES licenses(license_number) ON UPDATE CASCADE,\
+       owned_cars JSON)"
     );
     console.log("done creating/recreateing tables");
   } catch (error) {
@@ -41,7 +52,12 @@ async function createInitialTables() {
   }
 }
 
-async function insertInitialData(agents = [], cities = [], licenses = []) {
+async function insertInitialData(
+  agents = [],
+  cities = [],
+  licenses = [],
+  cars = []
+) {
   console.log("inserting cities");
   try {
     await Promise.all(
@@ -59,11 +75,20 @@ async function insertInitialData(agents = [], cities = [], licenses = []) {
         return promisePool.query(sql, x);
       })
     ).then(() => console.log("done inserting licenses"));
+    console.log("inserting cars");
+    await Promise.all(
+      cars.map((x) => {
+        const sql =
+          "INSERT INTO cars(car_number, production_year, manufacturer,\
+            manufacturing_country, fuel_type, rank) VALUES (?, ?, ?, ?, ?, ?)";
+        return promisePool.query(sql, x);
+      })
+    ).then(() => console.log("done inserting cars"));
     console.log("inserting agents");
     await Promise.all(
       agents.map((x) => {
         const sql =
-          "INSERT INTO agents(first_name, last_name, city, status, license_number) VALUES (?, ?, ?, ?, ?)";
+          "INSERT INTO agents(first_name, last_name, city, status, license_number, owned_cars) VALUES (?, ?, ?, ?, ?, ?)";
         return promisePool.query(sql, x);
       })
     ).then(() => console.log("done inserting agents"));
