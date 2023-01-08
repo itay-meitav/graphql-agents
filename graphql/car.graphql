@@ -1,0 +1,9 @@
+type Car {
+  car_number: Int!
+  production_year: Int
+  manufacturer: String
+  manufacturing_country: String
+  fuel_type: String
+  rank: String
+  car_owner: Agent
+}

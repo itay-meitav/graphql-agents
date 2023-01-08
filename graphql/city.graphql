@@ -1,0 +1,7 @@
+type City {
+  city_name: String!
+  city_code: Int
+  sieve: String
+  residents: Int
+  english_name: String
+}

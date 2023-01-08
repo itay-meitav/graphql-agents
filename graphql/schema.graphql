@@ -1,0 +1,16 @@
+scalar Date
+
+schema {
+  query: Query
+}
+
+type Query {
+  agents: [Agent]
+  agent: Agent
+  cities: [City]
+  city: City
+  licenses: [License]
+  license: License
+  cars: [Car]
+  car: Car
+}

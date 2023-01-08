@@ -1,0 +1,6 @@
+type License {
+  license_number: Int!
+  license_date: Date
+  rank: String
+  license_owner: Agent
+}

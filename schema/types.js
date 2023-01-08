@@ -4,7 +4,7 @@ const {
   GraphQLInt,
   GraphQLNonNull,
 } = require("graphql");
-const GraphQLDate = require("graphql-date");
+const { GraphQLDate } = require("graphql-scalars");
 const { resolveWhere } = require("./resolvers");
 
 const agentType = new GraphQLObjectType({
