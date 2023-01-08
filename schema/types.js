@@ -26,7 +26,7 @@ const agentType = new GraphQLObjectType({
     city: {
       type: cityType,
       description: "an agent's city",
-      resolve: (agent) => resolveWhere("cities", "city", agent.city),
+      resolve: (agent) => resolveWhere("cities", "city_name", agent.city),
     },
     status: {
       type: GraphQLString,
@@ -89,6 +89,12 @@ const licenseType = new GraphQLObjectType({
       type: GraphQLString,
       description: "a license's rank",
     },
+    license_owner: {
+      type: agentType,
+      description: "a license's owner",
+      resolve: (license) =>
+        resolveWhere("agents", "license_number", license.license_number),
+    },
   }),
 });
 
@@ -119,6 +125,11 @@ const carType = new GraphQLObjectType({
     rank: {
       type: GraphQLString,
       description: "a car's license rank",
+    },
+    car_owner: {
+      type: agentType,
+      description: "a car's owner",
+      resolve: (car) => resolveWhere("agents", "car_number", car.car_number),
     },
   }),
 });

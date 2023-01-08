@@ -21,29 +21,37 @@ async function initialDB() {
     getAgents(),
   ]);
   await insertInitialData(agents, cities, licenses, cars);
+  await attachOwners();
 }
 
 async function createInitialTables() {
   try {
+    await promisePool.query("SET FOREIGN_KEY_CHECKS=0");
     await promisePool.query(
-      "DROP TABLE IF EXISTS agents, cities, licenses, cars CASCADE"
+      "DROP TABLE IF EXISTS agents, cities, licenses, cars"
     );
     await promisePool.query(
       "CREATE TABLE cities(city_name VARCHAR(200) PRIMARY KEY, city_code INT, sieve TEXT,\
        residents INT, english_name TEXT)"
     );
     await promisePool.query(
-      "CREATE TABLE licenses(license_number INT PRIMARY KEY, license_date DATE, rank TEXT)"
+      "CREATE TABLE licenses(license_number INT PRIMARY KEY, license_date DATE, rank TEXT, license_owner INT)"
     );
     await promisePool.query(
       "CREATE TABLE cars(car_number INT PRIMARY KEY, production_year INT, manufacturer TEXT,\
-       manufacturing_country TEXT, fuel_type TEXT, rank TEXT)"
+       manufacturing_country TEXT, fuel_type TEXT, rank TEXT, car_owner INT)"
     );
     await promisePool.query(
-      "CREATE TABLE agents(id SERIAL PRIMARY KEY, first_name TEXT, last_name TEXT, city VARCHAR(200),\
+      "CREATE TABLE agents(id INT PRIMARY KEY AUTO_INCREMENT, first_name TEXT, last_name TEXT, city VARCHAR(200),\
        FOREIGN KEY(city) REFERENCES cities(city_name) ON UPDATE CASCADE, status TEXT,\
        license_number INT, FOREIGN KEY(license_number) REFERENCES licenses(license_number) ON UPDATE CASCADE,\
        car_number INT, FOREIGN KEY(car_number) REFERENCES cars(car_number) ON UPDATE CASCADE)"
+    );
+    await promisePool.query(
+      "ALTER TABLE licenses ADD FOREIGN KEY (license_owner) REFERENCES agents(id) ON UPDATE CASCADE"
+    );
+    await promisePool.query(
+      "ALTER TABLE cars ADD FOREIGN KEY (car_owner) REFERENCES agents(id) ON UPDATE CASCADE"
     );
     console.log("done creating/recreateing tables");
   } catch (error) {
@@ -91,6 +99,50 @@ async function insertInitialData(
         return promisePool.query(sql, x);
       })
     ).then(() => console.log("done inserting agents"));
+  } catch (error) {
+    console.log(error);
+  }
+}
+
+async function attachOwners() {
+  try {
+    const agentsSql = "SELECT * from agents";
+    const carsSql = "SELECT * from cars";
+    const licensesSql = "SELECT * from licenses";
+    const [agents, cars, licenses] = await Promise.all([
+      promisePool.query(agentsSql).then(([rows, fields]) => {
+        return rows;
+      }),
+      promisePool.query(carsSql).then(([rows, fields]) => {
+        return rows;
+      }),
+      promisePool.query(licensesSql).then(([rows, fields]) => {
+        return rows;
+      }),
+    ]);
+    await Promise.all([
+      Promise.all(
+        licenses.map((license) => {
+          const agentId = agents.find(
+            (x) => x.license_number == license.license_number
+          );
+          if (agentId) {
+            const sql =
+              "UPDATE licenses SET license_owner = ? WHERE license_number = ?";
+            return promisePool.query(sql, [agentId.id, license.license_number]);
+          }
+        })
+      ),
+      Promise.all(
+        cars.map((car) => {
+          const agentId = agents.find((x) => x.car_number == car.car_number);
+          if (agentId) {
+            const sql = "UPDATE cars SET car_owner = ? WHERE car_number = ?";
+            return promisePool.query(sql, [agentId.id, car.car_number]);
+          }
+        })
+      ),
+    ]).then(() => console.log("done attaching owners"));
   } catch (error) {
     console.log(error);
   }
