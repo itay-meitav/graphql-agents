@@ -1,46 +1,30 @@
 const { GraphQLObjectType, GraphQLList } = require("graphql");
-const { resolveAll, resolveWhere } = require("./resolvers");
+const { resolveSelect } = require("./resolvers");
 const { agentType, cityType, licenseType, carType } = require("./types");
 
 const RootQueryType = new GraphQLObjectType({
   name: "Query",
   description: "Root query",
   fields: () => ({
-    agents: {
-      type: new GraphQLList(agentType),
-      description: "list of all agents",
-      resolve: () => resolveAll("agents"),
-    },
     agent: {
-      type: agentType,
-      description: "A single agent",
-    },
-    cities: {
-      type: new GraphQLList(cityType),
-      description: "list of all cities",
-      resolve: () => resolveAll("cities"),
+      type: new GraphQLList(agentType),
+      description: "list of agents",
+      resolve: (obj, args) => resolveSelect("agents", args),
     },
     city: {
-      type: cityType,
-      description: "A single city",
-    },
-    licenses: {
-      type: new GraphQLList(licenseType),
-      description: "list of all licenses",
-      resolve: () => resolveAll("licenses"),
+      type: new GraphQLList(cityType),
+      description: "list of cities",
+      resolve: (obj, args) => resolveSelect("cities", args),
     },
     license: {
-      type: licenseType,
-      description: "A single license",
-    },
-    cars: {
-      type: new GraphQLList(carType),
-      description: "list of all cars",
-      resolve: () => resolveAll("cars"),
+      type: new GraphQLList(licenseType),
+      description: "list of licenses",
+      resolve: (obj, args) => resolveSelect("licenses", args),
     },
     car: {
-      type: carType,
-      description: "A single car",
+      type: new GraphQLList(carType),
+      description: "list of cars",
+      resolve: (obj, args) => resolveSelect("cars", args),
     },
   }),
 });

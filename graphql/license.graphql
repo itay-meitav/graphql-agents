@@ -1,3 +1,6 @@
+"""
+a license's details
+"""
 type License {
   license_number: Int!
   license_date: Date

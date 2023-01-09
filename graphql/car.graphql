@@ -1,3 +1,6 @@
+"""
+a car's details
+"""
 type Car {
   car_number: Int!
   production_year: Int

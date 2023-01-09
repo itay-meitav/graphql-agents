@@ -1,3 +1,6 @@
+"""
+a city's details
+"""
 type City {
   city_name: String!
   city_code: Int

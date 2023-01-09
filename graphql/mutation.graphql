@@ -1,0 +1,19 @@
+union objectTypes = Agent | City | License | Car
+
+"""
+insert/update/delete any object's information
+"""
+type Mutation {
+  """
+  update an object
+  """
+  updateObject: objectTypes
+  """
+  delete an object
+  """
+  deleteObject: objectTypes
+  """
+  insert an object
+  """
+  insertObject: objectTypes
+}

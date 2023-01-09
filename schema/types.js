@@ -5,7 +5,7 @@ const {
   GraphQLNonNull,
 } = require("graphql");
 const { GraphQLDate } = require("graphql-scalars");
-const { resolveWhere } = require("./resolvers");
+const { resolveSelect } = require("./resolvers");
 
 const agentType = new GraphQLObjectType({
   name: "Agent",
@@ -26,7 +26,8 @@ const agentType = new GraphQLObjectType({
     city: {
       type: cityType,
       description: "an agent's city",
-      resolve: (agent) => resolveWhere("cities", "city_name", agent.city),
+      resolve: (agent) =>
+        resolveSelect("cities", { city_name: agent.city }, true),
     },
     status: {
       type: GraphQLString,
@@ -36,12 +37,17 @@ const agentType = new GraphQLObjectType({
       type: licenseType,
       description: "an agent's license number",
       resolve: (agent) =>
-        resolveWhere("licenses", "license_number", agent.license_number),
+        resolveSelect(
+          "licenses",
+          { license_number: agent.license_number },
+          true
+        ),
     },
     car_number: {
       type: carType,
       description: "an agent's car number",
-      resolve: (agent) => resolveWhere("cars", "car_number", agent.car_number),
+      resolve: (agent) =>
+        resolveSelect("cars", { car_number: agent.car_number }, true),
     },
   }),
 });
@@ -93,7 +99,11 @@ const licenseType = new GraphQLObjectType({
       type: agentType,
       description: "a license's owner",
       resolve: (license) =>
-        resolveWhere("agents", "license_number", license.license_number),
+        resolveSelect(
+          "agents",
+          { license_number: license.license_number },
+          true
+        ),
     },
   }),
 });
@@ -129,7 +139,8 @@ const carType = new GraphQLObjectType({
     car_owner: {
       type: agentType,
       description: "a car's owner",
-      resolve: (car) => resolveWhere("agents", "car_number", car.car_number),
+      resolve: (car) =>
+        resolveSelect("agents", { car_number: car.car_number }, true),
     },
   }),
 });

@@ -2,38 +2,5 @@ scalar Date
 
 schema {
   query: Query
-}
-
-type Query {
-  agent(
-    id: Int
-    first_name: String
-    last_name: String
-    city: String
-    status: String
-    license_number: Int
-    car_number: Int
-  ): [Agent]
-  city(
-    city_name: String
-    city_code: Int
-    sieve: String
-    residents: Int
-    english_name: String
-  ): [City]
-  license(
-    license_number: Int
-    license_date: Date
-    rank: String
-    license_owner: Int
-  ): [License]
-  car(
-    car_number: Int
-    production_year: Int
-    manufacturer: String
-    manufacturing_country: String
-    fuel_type: String
-    rank: String
-    car_owner: Int
-  ): [Car]
+  mutation: Mutation
 }
