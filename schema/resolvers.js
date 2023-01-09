@@ -1,30 +1,24 @@
 const { promisePool } = require("../db");
 
-async function resolveAll(tableName) {
+async function resolveSelect(tableName = "", args, single = false) {
   try {
-    const sql = `SELECT * FROM ??`;
-    const [rows, fields] = await promisePool.query(sql, [tableName]);
-    return rows;
+    let query = `SELECT * FROM ${tableName}`;
+    let params = [];
+    if (Object.keys(args).length) {
+      query += " WHERE";
+      Object.entries(args).forEach(([column, value], index) => {
+        if (index > 0) {
+          query += " AND";
+        }
+        query += ` ${column} = ?`;
+        params.push(value);
+      });
+    }
+    const [rows, fields] = await promisePool.query(query, params);
+    return single ? rows[0] : rows;
   } catch (error) {
     console.log(error.sqlMessage);
   }
 }
 
-async function resolveWhere(tableName, column, value) {
-  try {
-    const sql = "SELECT * FROM ?? WHERE ?? = ?";
-    const [rows, fields] = await promisePool.query(sql, [
-      tableName,
-      column,
-      value,
-    ]);
-    return rows[0];
-  } catch (error) {
-    console.log(error.sqlMessage);
-  }
-}
-
-module.exports = {
-  resolveAll,
-  resolveWhere,
-};
+module.exports = { resolveSelect };

@@ -1,17 +1,26 @@
-const { resolveAll, resolveWhere } = require("../schema/resolvers");
+const { resolveSelect } = require("../schema/resolvers");
 
 const resolversMap = {
   Query: {
-    agents: () => resolveAll("agents"),
-    cities: () => resolveAll("cities"),
-    licenses: () => resolveAll("licenses"),
-    cars: () => resolveAll("cars"),
+    agent: (obj, args) => resolveSelect("agents", args),
+    city: (obj, args) => resolveSelect("cities", args),
+    license: (obj, args) => resolveSelect("licenses", args),
+    car: (obj, args) => resolveSelect("cars", args),
   },
   Agent: {
-    city: (agent) => resolveWhere("cities", "city_name", agent.city),
+    city: (agent) => resolveSelect("cities", { city_name: agent.city }, true),
     license_number: (agent) =>
-      resolveWhere("licenses", "license_number", agent.license_number),
-    car_number: (agent) => resolveWhere("cars", "car_number", agent.car_number),
+      resolveSelect("licenses", { license_number: agent.license_number }, true),
+    car_number: (agent) =>
+      resolveSelect("cars", { car_number: agent.car_number }, true),
+  },
+  License: {
+    license_owner: (license) =>
+      resolveSelect("agents", { license_number: license.license_number }, true),
+  },
+  Car: {
+    car_owner: (car) =>
+      resolveSelect("agents", { car_number: car.car_number }, true),
   },
 };
 
