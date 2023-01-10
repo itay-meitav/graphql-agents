@@ -107,6 +107,7 @@ async function insertInitialData(
 }
 
 async function attachOwners() {
+  console.log("attaching owners");
   try {
     const agentsSql = "SELECT * from agents";
     const carsSql = "SELECT * from cars";

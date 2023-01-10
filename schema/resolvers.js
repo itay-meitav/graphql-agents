@@ -4,7 +4,7 @@ async function resolveSelect(tableName = "", args, single = false) {
   try {
     let query = `SELECT * FROM ${tableName}`;
     let params = [];
-    if (Object.keys(args).length) {
+    if (args) {
       query += " WHERE";
       Object.entries(args).forEach(([column, value], index) => {
         if (index > 0) {
@@ -26,7 +26,7 @@ async function resolveUpdate(tableName = "", values, where) {
   try {
     let query = `UPDATE ${tableName} SET`;
     let params = [];
-    if (Object.keys(values).length) {
+    if (values) {
       Object.entries(values).forEach(([column, value], index) => {
         if (index > 0) {
           query += " ,";
@@ -60,7 +60,7 @@ async function resolveInsert(tableName = "", values) {
   try {
     let query = `INSERT INTO ${tableName}`;
     let params = [];
-    if (Object.keys(values).length) {
+    if (values) {
       query += "(";
       Object.entries(values).forEach(([column, value], index) => {
         if (index > 0) {
@@ -95,7 +95,7 @@ async function resolveDelete(tableName = "", where) {
   try {
     let query = `DELETE FROM ${tableName} WHERE`;
     let params = [];
-    if (Object.keys(where).length) {
+    if (where) {
       Object.entries(where).forEach(([column, value], index) => {
         if (index > 0) {
           query += " AND";

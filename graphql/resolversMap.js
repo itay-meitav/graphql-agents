@@ -46,7 +46,7 @@ function matchResolver(action, table, values, where) {
     case "UPDATE":
       return resolveUpdate(table, values, where);
     case "DELETE":
-      return resolveDelete(table, values);
+      return resolveDelete(table, where);
     default:
       throw new Error("Invalid Action");
   }
