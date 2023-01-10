@@ -1,61 +1,56 @@
 const { GraphQLObjectType } = require("graphql");
-const { resolveDelete, resolveInsert, resolveUpdate } = require("./resolvers");
-const { ResultType } = require("./types");
+const { ActionType, ResultType } = require("./types");
+const {
+  CarInputType,
+  AgentInputType,
+  LicenseInputType,
+  CityInputType,
+} = require("./inputs");
+const { matchResolver } = require("../graphql/resolversMap");
 
 const MutationType = new GraphQLObjectType({
   name: "Mutation",
   description: "Mutation root",
   fields: () => ({
-    updateAgent: {
+    agent: {
       type: ResultType,
-      resolve: (agent, { values, where }) =>
-        resolveUpdate("agents", values, where),
+      args: {
+        action: { type: ActionType },
+        values: { type: AgentInputType },
+        where: { type: AgentInputType },
+      },
+      resolve: (agent, { action, values, where }) =>
+        matchResolver(action, "agents", values, where),
     },
-    deleteAgent: {
+    city: {
       type: ResultType,
-      resolve: (agent, { where }) => resolveDelete("agents", where),
+      args: {
+        action: { type: ActionType },
+        values: { type: CityInputType },
+        where: { type: CityInputType },
+      },
+      resolve: (city, { action, values, where }) =>
+        matchResolver(action, "cities", values, where),
     },
-    insertAgent: {
+    license: {
       type: ResultType,
-      resolve: (agent, { values }) => resolveInsert("agents", values),
+      args: {
+        action: { type: ActionType },
+        values: { type: LicenseInputType },
+        where: { type: LicenseInputType },
+      },
+      resolve: (license, { action, values, where }) =>
+        matchResolver(action, "licenses", values, where),
     },
-    updateCity: {
+    car: {
       type: ResultType,
-      resolve: (city, { values, where }) =>
-        resolveUpdate("cities", values, where),
-    },
-    deleteCity: {
-      type: ResultType,
-      resolve: (city, { where }) => resolveDelete("cities", where),
-    },
-    insertCity: {
-      type: ResultType,
-      resolve: (city, { values }) => resolveInsert("cities", values),
-    },
-    updateLicense: {
-      type: ResultType,
-      resolve: (license, { values, where }) =>
-        resolveUpdate("licenses", values, where),
-    },
-    deleteLicense: {
-      type: ResultType,
-      resolve: (license, { where }) => resolveDelete("licenses", where),
-    },
-    insertLicense: {
-      type: ResultType,
-      resolve: (license, { values }) => resolveInsert("licenses", values),
-    },
-    updateCar: {
-      type: ResultType,
-      resolve: (car, { values, where }) => resolveUpdate("cars", values, where),
-    },
-    deleteCar: {
-      type: ResultType,
-      resolve: (car, { where }) => resolveDelete("cars", where),
-    },
-    insertCar: {
-      type: ResultType,
-      resolve: (car, { values }) => resolveInsert("cars", values),
+      args: {
+        action: { type: ActionType },
+        values: { type: CarInputType },
+        where: { type: CarInputType },
+      },
+      resolve: (car, { action, values, where }) =>
+        matchResolver(action, "cars", values, where),
     },
   }),
 });

@@ -4,6 +4,7 @@ const {
   GraphQLInt,
   GraphQLNonNull,
   GraphQLBoolean,
+  GraphQLEnumType,
 } = require("graphql");
 const { GraphQLDate, GraphQLJSON } = require("graphql-scalars");
 const { resolveSelect } = require("./resolvers");
@@ -159,10 +160,21 @@ const ResultType = new GraphQLObjectType({
   }),
 });
 
+const ActionType = new GraphQLEnumType({
+  name: "Action",
+  description: "an action to be made in db",
+  values: {
+    INSERT: { value: "INSERT" },
+    UPDATE: { value: "UPDATE" },
+    DELETE: { value: "DELETE" },
+  },
+});
+
 module.exports = {
   AgentType,
   CityType,
   LicenseType,
   CarType,
   ResultType,
+  ActionType,
 };

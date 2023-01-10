@@ -3,53 +3,21 @@ insert/update/delete any object's information
 """
 type Mutation {
   """
-  update an agent
+  mutate an agent
   """
-  updateAgent(values: AgentArgs, where: AgentArgs): Result
+  agent(action: Actions, values: AgentArgs, where: AgentArgs): Result
   """
-  delete an agent
+  mutate a city
   """
-  deleteAgent(where: AgentArgs): Result
+  city(action: Actions, values: CityArgs, where: CityArgs): Result
   """
-  insert an agent
+  mutate a license
   """
-  insertAgent(values: AgentArgs): Result
+  license(action: Actions, values: LicenseArgs, where: LicenseArgs): Result
   """
-  update a city
+  mutate a car
   """
-  updateCity(values: CityArgs, where: CityArgs): Result
-  """
-  delete a city
-  """
-  deleteCity(where: CityArgs): Result
-  """
-  insert a city
-  """
-  insertCity(values: CityArgs): Result
-  """
-  update an object
-  """
-  updateLicense(values: LicenseArgs, where: LicenseArgs): Result
-  """
-  delete a license
-  """
-  deleteLicense(where: LicenseArgs): Result
-  """
-  insert a license
-  """
-  insertLicense(values: LicenseArgs): Result
-  """
-  update a car
-  """
-  updateCar(values: CarArgs, where: CarArgs): Result
-  """
-  delete a car
-  """
-  deleteCar(where: CarArgs): Result
-  """
-  insert an car
-  """
-  insertCar(values: CarArgs): Result
+  car(action: Actions, values: CarArgs, where: CarArgs): Result
 }
 """
 a result of mutating attempt
@@ -57,4 +25,10 @@ a result of mutating attempt
 type Result {
   success: Boolean!
   data: Json
+}
+
+enum Actions {
+  INSERT
+  DELETE
+  UPDATE
 }

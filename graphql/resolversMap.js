@@ -28,22 +28,28 @@ const resolversMap = {
       resolveSelect("agents", { car_number: car.car_number }, true),
   },
   Mutation: {
-    updateAgent: (agent, { values, where }) =>
-      resolveUpdate("agents", values, where),
-    deleteAgent: (agent, { where }) => resolveDelete("agents", where),
-    insertAgent: (agent, { values }) => resolveInsert("agents", values),
-    updateCity: (city, { values, where }) =>
-      resolveUpdate("cities", values, where),
-    deleteCity: (city, { where }) => resolveDelete("cities", where),
-    insertCity: (city, { values }) => resolveInsert("cities", values),
-    updateLicense: (license, { values, where }) =>
-      resolveUpdate("licenses", values, where),
-    deleteLicense: (license, { where }) => resolveDelete("licenses", where),
-    insertLicense: (license, { values }) => resolveInsert("licenses", values),
-    updateCar: (car, { values, where }) => resolveUpdate("cars", values, where),
-    deleteCar: (car, { where }) => resolveDelete("cars", where),
-    insertCar: (car, { values }) => resolveInsert("cars", values),
+    agent: (agent, { action, values, where }) =>
+      matchResolver(action, "agents", values, where),
+    city: (city, { action, values, where }) =>
+      matchResolver(action, "cities", values, where),
+    license: (license, { action, values, where }) =>
+      matchResolver(action, "licenses", values, where),
+    car: (car, { action, values, where }) =>
+      matchResolver(action, "cars", values, where),
   },
 };
 
-module.exports = { resolversMap };
+function matchResolver(action, table, values, where) {
+  switch (action) {
+    case "INSERT":
+      return resolveInsert(table, values);
+    case "UPDATE":
+      return resolveUpdate(table, values, where);
+    case "DELETE":
+      return resolveDelete(table, values);
+    default:
+      throw new Error("Invalid Action");
+  }
+}
+
+module.exports = { resolversMap, matchResolver };
