@@ -18,6 +18,7 @@ async function resolveSelect(tableName = "", args, single = false) {
     return single ? rows[0] : rows;
   } catch (error) {
     console.log(error.sqlMessage);
+    return error.sqlMessage;
   }
 }
 

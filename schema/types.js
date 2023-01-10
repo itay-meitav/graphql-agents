@@ -3,11 +3,12 @@ const {
   GraphQLString,
   GraphQLInt,
   GraphQLNonNull,
+  GraphQLBoolean,
 } = require("graphql");
-const { GraphQLDate } = require("graphql-scalars");
+const { GraphQLDate, GraphQLJSON } = require("graphql-scalars");
 const { resolveSelect } = require("./resolvers");
 
-const agentType = new GraphQLObjectType({
+const AgentType = new GraphQLObjectType({
   name: "Agent",
   description: "An agent",
   fields: () => ({
@@ -24,7 +25,7 @@ const agentType = new GraphQLObjectType({
       description: "an agent's last name",
     },
     city: {
-      type: cityType,
+      type: CityType,
       description: "an agent's city",
       resolve: (agent) =>
         resolveSelect("cities", { city_name: agent.city }, true),
@@ -34,7 +35,7 @@ const agentType = new GraphQLObjectType({
       description: "an agent's status",
     },
     license_number: {
-      type: licenseType,
+      type: LicenseType,
       description: "an agent's license number",
       resolve: (agent) =>
         resolveSelect(
@@ -44,7 +45,7 @@ const agentType = new GraphQLObjectType({
         ),
     },
     car_number: {
-      type: carType,
+      type: CarType,
       description: "an agent's car number",
       resolve: (agent) =>
         resolveSelect("cars", { car_number: agent.car_number }, true),
@@ -52,7 +53,7 @@ const agentType = new GraphQLObjectType({
   }),
 });
 
-const cityType = new GraphQLObjectType({
+const CityType = new GraphQLObjectType({
   name: "City",
   description: "A city",
   fields: () => ({
@@ -79,7 +80,7 @@ const cityType = new GraphQLObjectType({
   }),
 });
 
-const licenseType = new GraphQLObjectType({
+const LicenseType = new GraphQLObjectType({
   name: "License",
   description: "A license",
   fields: () => ({
@@ -96,7 +97,7 @@ const licenseType = new GraphQLObjectType({
       description: "a license's rank",
     },
     license_owner: {
-      type: agentType,
+      type: AgentType,
       description: "a license's owner",
       resolve: (license) =>
         resolveSelect(
@@ -108,7 +109,7 @@ const licenseType = new GraphQLObjectType({
   }),
 });
 
-const carType = new GraphQLObjectType({
+const CarType = new GraphQLObjectType({
   name: "Car",
   description: "A car",
   fields: () => ({
@@ -137,7 +138,7 @@ const carType = new GraphQLObjectType({
       description: "a car's license rank",
     },
     car_owner: {
-      type: agentType,
+      type: AgentType,
       description: "a car's owner",
       resolve: (car) =>
         resolveSelect("agents", { car_number: car.car_number }, true),
@@ -145,4 +146,23 @@ const carType = new GraphQLObjectType({
   }),
 });
 
-module.exports = { agentType, cityType, licenseType, carType };
+const ResultType = new GraphQLObjectType({
+  name: "Result",
+  description: "a result of mutating attempt",
+  fields: () => ({
+    success: {
+      type: GraphQLNonNull(GraphQLBoolean),
+    },
+    data: {
+      type: GraphQLJSON,
+    },
+  }),
+});
+
+module.exports = {
+  AgentType,
+  CityType,
+  LicenseType,
+  CarType,
+  ResultType,
+};
