@@ -1,19 +1,60 @@
-union objectTypes = Agent | City | License | Car
-
 """
 insert/update/delete any object's information
 """
 type Mutation {
   """
+  update an agent
+  """
+  updateAgent(values: AgentArgs, where: AgentArgs): Result
+  """
+  delete an agent
+  """
+  deleteAgent(where: AgentArgs): Result
+  """
+  insert an agent
+  """
+  insertAgent(values: AgentArgs): Result
+  """
+  update a city
+  """
+  updateCity(values: CityArgs, where: CityArgs): Result
+  """
+  delete a city
+  """
+  deleteCity(where: CityArgs): Result
+  """
+  insert a city
+  """
+  insertCity(values: CityArgs): Result
+  """
   update an object
   """
-  updateObject: objectTypes
+  updateLicense(values: LicenseArgs, where: LicenseArgs): Result
   """
-  delete an object
+  delete a license
   """
-  deleteObject: objectTypes
+  deleteLicense(where: LicenseArgs): Result
   """
-  insert an object
+  insert a license
   """
-  insertObject: objectTypes
+  insertLicense(values: LicenseArgs): Result
+  """
+  update a car
+  """
+  updateCar(values: CarArgs, where: CarArgs): Result
+  """
+  delete a car
+  """
+  deleteCar(where: CarArgs): Result
+  """
+  insert an car
+  """
+  insertCar(values: CarArgs): Result
+}
+"""
+a result of mutating attempt
+"""
+type Result {
+  success: Boolean!
+  data: Json
 }

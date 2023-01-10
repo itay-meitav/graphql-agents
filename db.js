@@ -43,15 +43,17 @@ async function createInitialTables() {
     );
     await promisePool.query(
       "CREATE TABLE agents(id INT PRIMARY KEY AUTO_INCREMENT, first_name TEXT, last_name TEXT, city VARCHAR(200),\
-       FOREIGN KEY(city) REFERENCES cities(city_name) ON UPDATE CASCADE, status TEXT,\
-       license_number INT, FOREIGN KEY(license_number) REFERENCES licenses(license_number) ON UPDATE CASCADE,\
-       car_number INT, FOREIGN KEY(car_number) REFERENCES cars(car_number) ON UPDATE CASCADE)"
+       FOREIGN KEY(city) REFERENCES cities(city_name) ON UPDATE CASCADE ON DELETE SET NULL, status TEXT,\
+       license_number INT, FOREIGN KEY(license_number) REFERENCES licenses(license_number) ON UPDATE CASCADE\
+       ON DELETE SET NULL, car_number INT, FOREIGN KEY(car_number) REFERENCES cars(car_number) ON UPDATE CASCADE\
+       ON DELETE SET NULL)"
     );
     await promisePool.query(
-      "ALTER TABLE licenses ADD FOREIGN KEY (license_owner) REFERENCES agents(id) ON UPDATE CASCADE"
+      "ALTER TABLE licenses ADD FOREIGN KEY (license_owner) REFERENCES agents(id) ON UPDATE CASCADE ON DELETE\
+       SET NULL"
     );
     await promisePool.query(
-      "ALTER TABLE cars ADD FOREIGN KEY (car_owner) REFERENCES agents(id) ON UPDATE CASCADE"
+      "ALTER TABLE cars ADD FOREIGN KEY (car_owner) REFERENCES agents(id) ON UPDATE CASCADE ON DELETE SET NULL"
     );
     console.log("done creating/recreateing tables");
   } catch (error) {
