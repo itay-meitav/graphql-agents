@@ -1,8 +1,10 @@
 const express = require("express");
 const { ApolloServer } = require("@apollo/server");
 const { expressMiddleware } = require("@apollo/server/express4");
+const { loadSchemaSync } = require("@graphql-tools/load");
+const { GraphQLFileLoader } = require("@graphql-tools/graphql-file-loader");
+const { resolversMap } = require("./resolversMap");
 // const { schema } = require("./schema/index");
-const { schema } = require("./graphql/schema");
 const cors = require("cors");
 
 const app = express();
@@ -16,8 +18,10 @@ app.use(
 );
 
 const server = new ApolloServer({
-  schema: schema,
-  graphiql: true,
+  typeDefs: loadSchemaSync(__dirname + "/**/*.graphql", {
+    loaders: [new GraphQLFileLoader()],
+  }),
+  resolvers: resolversMap,
 });
 
 (async () => {
@@ -29,7 +33,7 @@ const server = new ApolloServer({
   }
 })();
 
-const PORT = 3000;
+const PORT = 5000;
 
 app.listen(PORT, () => {
   console.log(`app on http://localhost:${PORT}`);

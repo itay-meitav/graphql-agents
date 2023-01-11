@@ -6,7 +6,7 @@ const {
   LicenseInputType,
   CityInputType,
 } = require("./inputs");
-const { matchResolver } = require("../graphql/resolversMap");
+const { matchResolver } = require("../resolversMap");
 
 const MutationType = new GraphQLObjectType({
   name: "Mutation",

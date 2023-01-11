@@ -1,9 +1,10 @@
+const { GraphQLJSON, GraphQLDate } = require("graphql-scalars");
 const {
   resolveSelect,
   resolveDelete,
   resolveInsert,
   resolveUpdate,
-} = require("../schema/resolvers");
+} = require("./schema/resolvers");
 
 const resolversMap = {
   Query: {
@@ -37,6 +38,8 @@ const resolversMap = {
     car: (car, { action, values, where }) =>
       matchResolver(action, "cars", values, where),
   },
+  Json: GraphQLJSON,
+  Date: GraphQLDate,
 };
 
 function matchResolver(action, table, values, where) {

@@ -23,12 +23,27 @@ type Mutation {
 a result of mutating attempt
 """
 type Result {
+  """
+  action's success status
+  """
   success: Boolean!
+  """
+  action's information
+  """
   data: Json
 }
 
 enum Actions {
+  """
+  insert a new record
+  """
   INSERT
+  """
+  delete an existing record
+  """
   DELETE
+  """
+  update an existing record
+  """
   UPDATE
 }

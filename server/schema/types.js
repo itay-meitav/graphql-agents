@@ -164,9 +164,9 @@ const ActionType = new GraphQLEnumType({
   name: "Action",
   description: "an action to be made in db",
   values: {
-    INSERT: { value: "INSERT" },
-    UPDATE: { value: "UPDATE" },
-    DELETE: { value: "DELETE" },
+    INSERT: { value: "INSERT", description: "insert a new record" },
+    UPDATE: { value: "UPDATE", description: "update an existing record" },
+    DELETE: { value: "DELETE", description: "delete an existing record" },
   },
 });
 
